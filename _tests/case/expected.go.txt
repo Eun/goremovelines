@@ -1,0 +1,17 @@
+package main
+
+import "fmt"
+
+func main() {
+	i := 0
+	switch i {
+
+	case 1:
+		fmt.Println("Hello")
+	case 2:
+		fmt.Println("Bye")
+	default:
+		fmt.Println("Unknown")
+
+	}
+}
