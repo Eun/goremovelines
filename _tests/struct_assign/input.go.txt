@@ -1,0 +1,15 @@
+package main
+
+func main() {
+	st := struct {
+
+		Field1 string
+		Field2 string
+
+	}{
+
+		"Hello",
+		"World",
+
+	}
+}

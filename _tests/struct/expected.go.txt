@@ -1,0 +1,6 @@
+package main
+
+type st struct {
+	Field1 string
+	Field2 string
+}

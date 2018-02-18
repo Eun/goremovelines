@@ -1,0 +1,13 @@
+package main
+
+import "fmt"
+
+func main() {
+	// Prints Hello World
+	fmt.Println("Hello World")
+
+	/*
+		This is a comment
+		with multiple lines
+	*/
+}

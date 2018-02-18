@@ -1,0 +1,15 @@
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println(`package submain
+
+import "fmt"
+
+func submain() {
+
+	fmt.Println("Hello2")
+
+}`)
+}

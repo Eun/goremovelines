@@ -1,0 +1,12 @@
+package main
+
+import "fmt"
+
+func main() {
+	rng := []string{"A", "B", "C"}
+	for i, a := range rng {
+
+		fmt.Printf("%d: %s\n", i, a)
+
+	}
+}
