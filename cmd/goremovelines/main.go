@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove empty lines for the context (specify it multiple times, e.g.: -r=func -r=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
+	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove empty lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
 	writeToSourceFlag = kingpin.CommandLine.Flag("toSource", "Write result to (source) file instead of stdout").Short('w').Default("false").Bool()
 	skipFlag          = kingpin.CommandLine.Flag("skip", "Skip directories with this name when expanding '...'.").Short('s').PlaceHolder("DIR...").Strings()
 	vendorFlag        = kingpin.CommandLine.Flag("vendor", "Enable vendoring support (skips 'vendor' directories and sets GO15VENDOREXPERIMENT=1).").Bool()
@@ -161,5 +161,4 @@ func main() {
 	}
 
 	cleanPaths(resolvePaths(*pathsArg, *skipFlag), mode)
-
 }
