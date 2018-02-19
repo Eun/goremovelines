@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -74,60 +76,59 @@ func parseMode() (mode goremovelines.Mode) {
 	return mode
 }
 
-func cleanPaths(paths []string, mode goremovelines.Mode) {
+func cleanPaths(paths []string, mode goremovelines.Mode) error {
 	for i := 0; i < len(paths); i++ {
 		out := &bytes.Buffer{}
 		goremovelines.Debug = *debugFlag
 		if err := goremovelines.CleanFilePath(paths[i], out, mode); err != nil {
-			warning(err.Error())
-			continue
+			return err
 		}
 		if writeToSourceFlag != nil && *writeToSourceFlag {
 			f, err := os.Create(paths[i])
 			if err == nil {
 				if _, err = f.Write(out.Bytes()); err != nil {
-					warning("Unable to write file `%s': %v", paths[i], err)
+					return fmt.Errorf("Unable to write file `%s': %v", paths[i], err)
 				}
 				if err = f.Close(); err != nil {
-					warning("Unable to close file `%s': %v", paths[i], err)
+					return fmt.Errorf("Unable to close file `%s': %v", paths[i], err)
 				}
 			} else {
-				warning("Unable to create file `%s': %v", paths[i], err)
+				return fmt.Errorf("Unable to create file `%s': %v", paths[i], err)
 			}
 		} else {
 			if _, err := io.Copy(os.Stdout, out); err != nil {
-				warning("Unable to write to stdout (`%s'): %v", paths[i], err)
+				return fmt.Errorf("Unable to write to stdout (`%s'): %v", paths[i], err)
 			}
 		}
 	}
+	return nil
 }
 
-func cleanPathsFromStdin(mode goremovelines.Mode) {
+func cleanPathsFromStdin(mode goremovelines.Mode) error {
 	in := &bytes.Buffer{}
 	_, err := io.Copy(in, os.Stdin)
 	if err != nil {
-		warning("Unable to copy stdin: %v", err)
-		return
+		return fmt.Errorf("Unable to copy stdin: %v", err)
 	}
 
 	out := &bytes.Buffer{}
 	goremovelines.Debug = *debugFlag
 	if err := goremovelines.CleanFile(in.String(), out, mode); err != nil {
-		warning(err.Error())
-		return
+		return err
 	}
 	if writeToSourceFlag != nil && *writeToSourceFlag {
-		warning("Could not write to source if reading from stdin")
+		return errors.New("Could not write to source if reading from stdin")
 	}
 	if _, err := io.Copy(os.Stdout, out); err != nil {
-		warning("Unable to copy to stdout: %v", err)
+		return fmt.Errorf("Unable to copy to stdout: %v", err)
 	}
+	return nil
 }
 
 func main() {
 	pathsArg := kingpin.Arg("path", "Directories to format. Defaults to \".\". <path>/... will recurse.").Strings()
 	kingpin.CommandLine.HelpFlag.Short('h')
-	kingpin.CommandLine.Version("goremovelines 1.0")
+	kingpin.CommandLine.Version("goremovelines 1.1")
 	kingpin.CommandLine.VersionFlag.Short('v')
 	kingpin.CommandLine.Help = "Remove empty lines in go code"
 
@@ -143,7 +144,10 @@ func main() {
 	mode := parseMode()
 
 	if pathsArg == nil || len(*pathsArg) <= 0 {
-		cleanPathsFromStdin(mode)
+		if err := cleanPathsFromStdin(mode); err != nil {
+			warning("Unable to clean: %v", err.Error())
+			os.Exit(1)
+		}
 		return
 	}
 
@@ -160,5 +164,8 @@ func main() {
 		vendorFlag = &trueValue
 	}
 
-	cleanPaths(resolvePaths(*pathsArg, *skipFlag), mode)
+	if err := cleanPaths(resolvePaths(*pathsArg, *skipFlag), mode); err != nil {
+		warning("Unable to clean: %v", err.Error())
+		os.Exit(1)
+	}
 }
