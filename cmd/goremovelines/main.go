@@ -102,6 +102,28 @@ func cleanPaths(paths []string, mode goremovelines.Mode) {
 	}
 }
 
+func cleanPathsFromStdin(mode goremovelines.Mode) {
+	in := &bytes.Buffer{}
+	_, err := io.Copy(in, os.Stdin)
+	if err != nil {
+		warning("Unable to copy stdin: %v", err)
+		return
+	}
+
+	out := &bytes.Buffer{}
+	goremovelines.Debug = *debugFlag
+	if err := goremovelines.CleanFile(in.String(), out, mode); err != nil {
+		warning(err.Error())
+		return
+	}
+	if writeToSourceFlag != nil && *writeToSourceFlag {
+		warning("Could not write to source if reading from stdin")
+	}
+	if _, err := io.Copy(os.Stdout, out); err != nil {
+		warning("Unable to copy to stdout: %v", err)
+	}
+}
+
 func main() {
 	pathsArg := kingpin.Arg("path", "Directories to format. Defaults to \".\". <path>/... will recurse.").Strings()
 	kingpin.CommandLine.HelpFlag.Short('h')
@@ -121,6 +143,7 @@ func main() {
 	mode := parseMode()
 
 	if pathsArg == nil || len(*pathsArg) <= 0 {
+		cleanPathsFromStdin(mode)
 		return
 	}
 
