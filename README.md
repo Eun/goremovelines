@@ -15,7 +15,7 @@ Remove empty (start / end) lines in go code
 Flags:
   -h, --help             Show context-sensitive help (also try --help-long and --help-man).
   -r, --remove=func|struct|if|switch|case|for|interface|block ...  
-                         Remove empty lines for the context (specify it multiple times, e.g.: -r=func -r=struct)
+                         Remove empty lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)
   -w, --toSource         Write result to (source) file instead of stdout
   -s, --skip=DIR... ...  Skip directories with this name when expanding '...'.
       --vendor           Enable vendoring support (skips 'vendor' directories and sets GO15VENDOREXPERIMENT=1).
