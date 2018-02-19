@@ -128,7 +128,7 @@ func cleanPathsFromStdin(mode goremovelines.Mode) error {
 func main() {
 	pathsArg := kingpin.Arg("path", "Directories to format. Defaults to \".\". <path>/... will recurse.").Strings()
 	kingpin.CommandLine.HelpFlag.Short('h')
-	kingpin.CommandLine.Version("goremovelines 1.1")
+	kingpin.CommandLine.Version("goremovelines 1.11")
 	kingpin.CommandLine.VersionFlag.Short('v')
 	kingpin.CommandLine.Help = "Remove empty lines in go code"
 
