@@ -82,7 +82,6 @@ func runTest(t *testing.T, test string) {
 }
 
 func TestAllTests(t *testing.T) {
-
 	if len(onlyTest) > 0 {
 		fmt.Printf("Running `%s'\n", onlyTest)
 		runTest(t, onlyTest)

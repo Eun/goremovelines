@@ -434,6 +434,15 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 				return cleanSrc(src, v.Lbrace, v.Rbrace, mode)
 			}
 		}
+	case *ast.KeyValueExpr:
+		mod, err := cleanNode(src, v.Key, mode)
+		if err != nil {
+			return false, err
+		}
+		if mod {
+			return true, nil
+		}
+		return cleanNode(src, v.Value, mode)
 	// if
 	case *ast.IfStmt:
 		if mode&IfMode == IfMode {
