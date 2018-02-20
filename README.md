@@ -1,5 +1,5 @@
 # goremovelines [![Travis](https://img.shields.io/travis/Eun/goremovelines.svg)](https://travis-ci.org/Eun/goremovelines) [![Codecov](https://img.shields.io/codecov/c/github/Eun/goremovelines.svg)](https://codecov.io/gh/Eun/goremovelines) [![go-report](https://goreportcard.com/badge/github.com/Eun/goremovelines)](https://goreportcard.com/report/github.com/Eun/goremovelines)
-Remove empty (start / end) lines in go code
+Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks.
 
 ## Installation
 ```
@@ -10,7 +10,7 @@ go get -u github.com/Eun/goremovelines/cmd/goremovelines
 ```
 usage: goremovelines [<flags>] [<path>...]
 
-Remove empty (start / end) lines in go code
+Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks.
 
 Flags:
   -h, --help             Show context-sensitive help (also try --help-long and --help-man).
