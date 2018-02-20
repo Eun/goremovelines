@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove empty lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
+	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove blank lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
 	writeToSourceFlag = kingpin.CommandLine.Flag("toSource", "Write result to (source) file instead of stdout").Short('w').Default("false").Bool()
 	skipFlag          = kingpin.CommandLine.Flag("skip", "Skip directories with this name when expanding '...'.").Short('s').PlaceHolder("DIR...").Strings()
 	vendorFlag        = kingpin.CommandLine.Flag("vendor", "Enable vendoring support (skips 'vendor' directories and sets GO15VENDOREXPERIMENT=1).").Bool()
@@ -130,7 +130,7 @@ func main() {
 	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.CommandLine.Version("goremovelines 1.11")
 	kingpin.CommandLine.VersionFlag.Short('v')
-	kingpin.CommandLine.Help = "Remove empty lines in go code"
+	kingpin.CommandLine.Help = "Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks."
 
 	kingpin.Parse()
 
