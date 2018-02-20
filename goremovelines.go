@@ -301,15 +301,13 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	switch v := node.(type) {
 	case *ast.GenDecl:
-		if v.Tok == token.TYPE {
-			for i := 0; i < len(v.Specs); i++ {
-				mod, err := cleanNode(src, v.Specs[i], mode)
-				if err != nil {
-					return false, err
-				}
-				if mod {
-					return true, nil
-				}
+		for i := 0; i < len(v.Specs); i++ {
+			mod, err := cleanNode(src, v.Specs[i], mode)
+			if err != nil {
+				return false, err
+			}
+			if mod {
+				return true, nil
 			}
 		}
 	case *ast.DeclStmt:
@@ -345,6 +343,23 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		}
 		for i := 0; i < len(v.Rhs); i++ {
 			mod, err := cleanNode(src, v.Rhs[i], mode)
+			if err != nil {
+				return false, err
+			}
+			if mod {
+				return true, nil
+			}
+		}
+	case *ast.ValueSpec:
+		mod, err := cleanNode(src, v.Type, mode)
+		if err != nil {
+			return false, err
+		}
+		if mod {
+			return true, nil
+		}
+		for i := 0; i < len(v.Values); i++ {
+			mod, err := cleanNode(src, v.Values[i], mode)
 			if err != nil {
 				return false, err
 			}
