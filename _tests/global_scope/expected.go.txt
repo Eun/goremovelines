@@ -1,0 +1,17 @@
+package main
+
+import "fmt"
+
+type aStruct struct {
+	Func func()
+}
+
+var st = aStruct {
+	Func: func() {
+		fmt.Println("Hello World")
+	},
+}
+
+func main() {
+	st.Func()
+}
