@@ -1,4 +1,4 @@
-# goremovelines [![Travis](https://img.shields.io/travis/Eun/goremovelines.svg)](https://travis-ci.org/Eun/goremovelines) [![Codecov](https://img.shields.io/codecov/c/github/Eun/goremovelines.svg)](https://codecov.io/gh/Eun/goremovelines) [![go-report](https://goreportcard.com/badge/github.com/Eun/goremovelines)](https://goreportcard.com/report/github.com/Eun/goremovelines)
+# goremovelines [![Travis](https://img.shields.io/travis/Eun/goremovelines.svg)](https://travis-ci.org/Eun/goremovelines) [![Codecov](https://img.shields.io/codecov/c/github/Eun/goremovelines.svg)](https://codecov.io/gh/Eun/goremovelines) [![GoDoc](https://godoc.org/github.com/Eun/goremovelines?status.svg)](https://godoc.org/github.com/Eun/goremovelines) [![go-report](https://goreportcard.com/badge/github.com/Eun/goremovelines)](https://goreportcard.com/report/github.com/Eun/goremovelines)
 Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks.
 
 ## Installation
