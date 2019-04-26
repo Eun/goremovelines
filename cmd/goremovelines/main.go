@@ -13,6 +13,12 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+
+// from goreleaser
+var version string
+var commit string
+var date string
+
 var (
 	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove blank lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
 	writeToSourceFlag = kingpin.CommandLine.Flag("toSource", "Write result to (source) file instead of stdout").Short('w').Default("false").Bool()
@@ -128,7 +134,7 @@ func cleanPathsFromStdin(mode goremovelines.Mode) error {
 func main() {
 	pathsArg := kingpin.Arg("path", "Directories to format. Defaults to \".\". <path>/... will recurse.").Strings()
 	kingpin.CommandLine.HelpFlag.Short('h')
-	kingpin.CommandLine.Version("goremovelines 1.12")
+	kingpin.CommandLine.Version(fmt.Sprintf("goremovelines %s %s %s", version, commit, date))
 	kingpin.CommandLine.VersionFlag.Short('v')
 	kingpin.CommandLine.Help = "Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks."
 

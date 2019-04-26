@@ -150,6 +150,11 @@ func cleanSrc(src *string, start, end token.Pos, mode Mode) (bool, error) {
 	for (*src)[startOfBody] != '{' {
 		startOfBody--
 	}
+
+	// fix out of bounds
+	for size := len(*src); endOfBody >= size; endOfBody-- {
+	}
+
 	for (*src)[endOfBody] != '}' {
 		endOfBody--
 	}
