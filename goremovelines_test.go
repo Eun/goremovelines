@@ -1,11 +1,7 @@
-// You can run specific tests only using
-// `go test . -only=<testname>`
 package goremovelines
 
 import (
 	"bytes"
-	"flag"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,14 +11,6 @@ import (
 
 	"github.com/stretchr/testify/require"
 )
-
-var onlyTest string
-
-func init() {
-	Debug = true
-	flag.StringVar(&onlyTest, "only", "", "Only run this test")
-	flag.Parse()
-}
 
 func runTest(t *testing.T, test string) {
 	var expectedBuffer bytes.Buffer
@@ -80,12 +68,6 @@ func runTest(t *testing.T, test string) {
 }
 
 func TestAllTests(t *testing.T) {
-	if len(onlyTest) > 0 {
-		fmt.Printf("Running `%s'\n", onlyTest)
-		runTest(t, onlyTest)
-		return
-	}
-
 	d, err := os.Open("_tests")
 	if err != nil {
 		panic(err)
