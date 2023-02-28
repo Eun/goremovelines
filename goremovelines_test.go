@@ -70,10 +70,8 @@ func runTest(t *testing.T, test string) {
 			panic(err)
 		}
 		mode = Mode(m)
-	} else {
-		if !os.IsNotExist(err) {
-			panic(err)
-		}
+	} else if !os.IsNotExist(err) {
+		panic(err)
 	}
 
 	var cleanedBuffer bytes.Buffer
@@ -109,7 +107,7 @@ func TestFindRealStartOfBody(t *testing.T) {
 		input    string
 		expected int
 	}{
-		//with a bracket in front
+		// with a bracket in front
 		{"{\n\n\tHello", 2},
 		{"{\n\tHello", 2},
 		{"{\tHello", -1},
@@ -142,7 +140,7 @@ func TestFindRealEndOfBody(t *testing.T) {
 		{"Hello\n}", 5},
 		{"Hello}", -1},
 
-		//bracket and a space char before }
+		// bracket and a space char before }
 		{"Hello\n\t}", 5},
 
 		// invalid

@@ -15,34 +15,34 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Mode is a bitmask that defines which lines should be removed
+// Mode is a bitmask that defines which lines should be removed.
 type Mode int
 
 const (
-	// FuncMode should be set to remove empty lines in functions
+	// FuncMode should be set to remove empty lines in functions.
 	FuncMode = 1 << iota
-	// StructMode should be set to remove empty lines in structs
+	// StructMode should be set to remove empty lines in structs.
 	StructMode = 1 << iota
-	// IfMode should be set to remove empty lines in if blocks
+	// IfMode should be set to remove empty lines in if blocks.
 	IfMode = 1 << iota
-	// SwitchMode should be set to remove empty lines in functions
+	// SwitchMode should be set to remove empty lines in functions.
 	SwitchMode = 1 << iota
-	// CaseMode should be set to remove empty lines in case blocks
+	// CaseMode should be set to remove empty lines in case blocks.
 	CaseMode = 1 << iota
-	// ForMode should be set to remove empty lines in for blocks
+	// ForMode should be set to remove empty lines in for blocks.
 	ForMode = 1 << iota
-	// InterfaceMode should be set to remove empty lines in interface blocks
+	// InterfaceMode should be set to remove empty lines in interface blocks.
 	InterfaceMode = 1 << iota
-	// BlockMode should be set to remove empty lines in blocks
+	// BlockMode should be set to remove empty lines in blocks.
 	BlockMode = 1 << iota
-	// AllMode includes all modes
+	// AllMode includes all modes.
 	AllMode = FuncMode | StructMode | IfMode | SwitchMode | CaseMode | ForMode | InterfaceMode | BlockMode
 )
 
-// Debug enables/disables debug output
+// Debug enables/disables debug output.
 var Debug = false
 
-// CleanFilePath cleans a file with the specific mode, it writes the cleaned output to `out`
+// CleanFilePath cleans a file with the specific mode, it writes the cleaned output to `out`.
 func CleanFilePath(path string, out io.Writer, mode Mode) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -59,9 +59,9 @@ func CleanFilePath(path string, out io.Writer, mode Mode) error {
 	return CleanFile(b.String(), out, mode)
 }
 
-// CleanFile cleans a source code with the specific mode, it writes the cleaned output to `out`
+// CleanFile cleans a source code with the specific mode, it writes the cleaned output to `out`.
 func CleanFile(src string, out io.Writer, mode Mode) error {
-	_, err := clean(&src, mode)
+	err := clean(&src, mode)
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func CleanFile(src string, out io.Writer, mode Mode) error {
 	return err
 }
 
-func clean(src *string, mode Mode) (bool, error) {
+func clean(src *string, mode Mode) error {
 	if Debug {
 		lines := strings.Split(*src, "\n")
 		for i, line := range lines {
@@ -81,24 +81,24 @@ cleanAgain:
 	set := token.NewFileSet()
 	astFile, err := parser.ParseFile(set, "", *src, parser.ParseComments)
 	if err != nil {
-		return false, errors.Errorf("Failed to parse `%s': %v", *src, err)
+		return errors.Errorf("Failed to parse `%s': %v", *src, err)
 	}
 
 	for i := 0; i < len(astFile.Decls); i++ {
 		mod, err := cleanNode(src, astFile.Decls[i], mode)
 		if err != nil {
-			return false, err
+			return err
 		}
 		if mod {
 			goto cleanAgain
 		}
 	}
 
-	return false, nil
+	return nil
 }
 
 func findRealStartOfBody(src string, start, end int) int {
-	if start < 0 || end < 0 || end <= start || end >= len(src) || len(src[start:end]) <= 0 {
+	if start < 0 || end < 0 || end <= start || end >= len(src) || src[start:end] == "" {
 		return -1
 	}
 	if src[start] != '{' {
@@ -122,7 +122,7 @@ func findRealStartOfBody(src string, start, end int) int {
 }
 
 func findRealEndOfBody(src string, start, end int) int {
-	if start < 0 || end < 0 || end <= start || end >= len(src) || len(src[start:end]) <= 0 {
+	if start < 0 || end < 0 || end <= start || end >= len(src) || src[start:end] == "" {
 		return -1
 	}
 	if src[end] != '}' {
@@ -143,7 +143,7 @@ func findRealEndOfBody(src string, start, end int) int {
 	return -1
 }
 
-func cleanSrc(src *string, start, end token.Pos, mode Mode) (bool, error) {
+func cleanSrc(src *string, start, end token.Pos) (bool, error) {
 	startOfBody := int(start)
 	endOfBody := int(end)
 
@@ -204,7 +204,7 @@ func cleanSrc(src *string, start, end token.Pos, mode Mode) (bool, error) {
 	return false, nil
 }
 
-func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (bool, error) {
+func cleanCase(src *string, start, end token.Pos, isLastCase bool) bool {
 	startOfBody := int(start)
 	endOfBody := int(end)
 
@@ -216,7 +216,7 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 	}
 
 	findRealStartOfBodyCase := func(src string, start, end int) int {
-		if start < 0 || end < 0 || end <= start || end >= len(src) || len(src[start:end]) <= 0 {
+		if start < 0 || end < 0 || end <= start || end >= len(src) || src[start:end] == "" {
 			return -1
 		}
 
@@ -235,7 +235,7 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 	}
 
 	findRealEndOfBodyCase := func(src string, start, end int) int {
-		if start < 0 || end < 0 || end <= start || end >= len(src) || len(src[start:end]) <= 0 {
+		if start < 0 || end < 0 || end <= start || end >= len(src) || src[start:end] == "" {
 			return -1
 		}
 
@@ -263,7 +263,7 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 
 	realStartOfBody := findRealStartOfBodyCase(*src, startOfBody, endOfBody)
 	if realStartOfBody == -1 {
-		return false, nil
+		return false
 	}
 
 	var r rune
@@ -273,7 +273,7 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 		r, width = utf8.DecodeRuneInString((*src)[i:endOfBody])
 		if r == '\n' {
 			*src = (*src)[:realStartOfBody] + (*src)[i+width:endOfBody] + (*src)[endOfBody:]
-			return true, nil
+			return true
 		} else if unicode.IsSpace(r) {
 		} else {
 			break
@@ -284,7 +284,7 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 	if isLastCase {
 		realEndOfBody = findRealEndOfBodyCase(*src, startOfBody, endOfBody)
 		if realEndOfBody == -1 {
-			return false, nil
+			return false
 		}
 	} else {
 		realEndOfBody = endOfBody
@@ -294,13 +294,13 @@ func cleanCase(src *string, start, end token.Pos, mode Mode, isLastCase bool) (b
 		r, width = utf8.DecodeLastRuneInString((*src)[startOfBody:i])
 		if r == '\n' {
 			*src = (*src)[:startOfBody] + (*src)[startOfBody:i-width] + (*src)[realEndOfBody:]
-			return true, nil
+			return true
 		} else if unicode.IsSpace(r) {
 		} else {
 			break
 		}
 	}
-	return false, nil
+	return false
 }
 
 func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
@@ -376,7 +376,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		return cleanNode(src, v.X, mode)
 	case *ast.BasicLit:
 		if v.Kind == token.FUNC {
-			return cleanSrc(src, v.Pos(), v.End(), mode)
+			return cleanSrc(src, v.Pos(), v.End())
 		}
 	case *ast.TypeSpec:
 		return cleanNode(src, v.Type, mode)
@@ -387,7 +387,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		}
 
 		if mode&FuncMode == FuncMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -407,7 +407,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		}
 	case *ast.FuncLit:
 		if mode&FuncMode == FuncMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -428,7 +428,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// structs
 	case *ast.StructType:
 		if mode&StructMode == StructMode {
-			return cleanSrc(src, v.Fields.Opening, v.Fields.Closing, mode)
+			return cleanSrc(src, v.Fields.Opening, v.Fields.Closing)
 		}
 	case *ast.CompositeLit:
 		mod, err := cleanNode(src, v.Type, mode)
@@ -451,7 +451,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		// if this was a struct, clean the list also
 		if mode&StructMode == StructMode {
 			if _, ok := v.Type.(*ast.StructType); ok {
-				return cleanSrc(src, v.Lbrace, v.Rbrace, mode)
+				return cleanSrc(src, v.Lbrace, v.Rbrace)
 			}
 		}
 	case *ast.KeyValueExpr:
@@ -466,7 +466,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// if
 	case *ast.IfStmt:
 		if mode&IfMode == IfMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -475,7 +475,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 			}
 
 			if elseBlock, ok := v.Else.(*ast.BlockStmt); ok {
-				mod, err := cleanSrc(src, elseBlock.Lbrace, elseBlock.Rbrace, mode)
+				mod, err := cleanSrc(src, elseBlock.Lbrace, elseBlock.Rbrace)
 				if err != nil {
 					return false, err
 				}
@@ -505,7 +505,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// switch
 	case *ast.SwitchStmt:
 		if mode&SwitchMode == SwitchMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -517,10 +517,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 		for i := 0; i < len(v.Body.List); i++ {
 			if caseClause, ok := v.Body.List[i].(*ast.CaseClause); ok {
 				if mode&CaseMode == CaseMode {
-					mod, err := cleanCase(src, caseClause.Colon, caseClause.End(), mode, i == lastIndex)
-					if err != nil {
-						return false, err
-					}
+					mod := cleanCase(src, caseClause.Colon, caseClause.End(), i == lastIndex)
 					if mod {
 						return true, nil
 					}
@@ -546,7 +543,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// for
 	case *ast.ForStmt:
 		if mode&ForMode == ForMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -566,7 +563,7 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// for range
 	case *ast.RangeStmt:
 		if mode&ForMode == ForMode {
-			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Body.Lbrace, v.Body.Rbrace)
 			if err != nil {
 				return false, err
 			}
@@ -586,12 +583,12 @@ func cleanNode(src *string, node interface{}, mode Mode) (bool, error) {
 	// interface
 	case *ast.InterfaceType:
 		if mode&InterfaceMode == InterfaceMode {
-			return cleanSrc(src, v.Methods.Opening, v.Methods.Closing, mode)
+			return cleanSrc(src, v.Methods.Opening, v.Methods.Closing)
 		}
 	// block
 	case *ast.BlockStmt:
 		if mode&BlockMode == BlockMode {
-			mod, err := cleanSrc(src, v.Lbrace, v.Rbrace, mode)
+			mod, err := cleanSrc(src, v.Lbrace, v.Rbrace)
 			if err != nil {
 				return false, err
 			}
