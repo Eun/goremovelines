@@ -8,7 +8,8 @@ import (
 	"strings"
 )
 
-// taken from gometalinter
+// source taken from gometalinter
+
 func resolvePaths(paths, skip []string) []string {
 	if len(paths) == 0 {
 		return []string{"."}
@@ -21,7 +22,7 @@ func resolvePaths(paths, skip []string) []string {
 			root := filepath.Dir(path)
 			_ = filepath.Walk(root, func(p string, i os.FileInfo, err error) error {
 				if err != nil {
-					warning("invalid path %q: %s", p, err)
+					warningf("invalid path %q: %s", p, err)
 					return err
 				}
 
@@ -44,7 +45,7 @@ func resolvePaths(paths, skip []string) []string {
 	}
 	sort.Strings(out)
 	for _, d := range out {
-		debug("linting path %s", d)
+		debugf("linting path %s", d)
 	}
 	return out
 }
@@ -64,13 +65,13 @@ func newPathFilter(skip []string) func(string) bool {
 	}
 }
 
-func debug(format string, args ...interface{}) {
+func debugf(format string, args ...interface{}) {
 	if *debugFlag {
 		fmt.Fprintf(os.Stderr, "DEBUG: "+format+"\n", args...)
 	}
 }
 
-func warning(format string, args ...interface{}) {
+func warningf(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, "WARNING: "+format+"\n", args...)
 }
 

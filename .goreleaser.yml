@@ -1,0 +1,67 @@
+project_name: "${ProjectName}"
+builds:
+  -
+    binary: "${ProjectName}"
+    main: "./cmd/goremovelines"
+    env:
+      - "CGO_ENABLED=0"
+    goos:
+      - "darwin"
+      - "freebsd"
+      - "linux"
+      - "windows"
+    goarch:
+      - "386"
+      - "arm"
+      - "arm64"
+      - "amd64"
+    ldflags:
+      - -s
+      - -w
+      - -X "${GoPackageName}/cmd/root.version={{.Version}}"
+      - -X "${GoPackageName}/cmd/root.commit={{.Commit}}"
+      - -X "${GoPackageName}/cmd/root.date={{.Date}}"
+      - -X "${GoPackageName}/cmd/root.author=${Author}"
+      - -X "${GoPackageName}/cmd/root.description=${Description}"
+archives:
+  - name_template: "${ProjectName}_{{.Version}}_{{.Os}}_{{.Arch}}{{if .Arm}}v{{.Arm}}{{end}}"
+    replacements:
+      darwin: "darwin"
+      linux: "linux"
+      windows: "windows"
+      386: "i386"
+      amd64: "x86_64"
+    format_overrides:
+      - goos: "windows"
+        format: "zip"
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{.Tag}}-next"
+changelog:
+  skip: true
+nfpms:
+  -
+    id: "${ProjectName}"
+    package_name: "${ProjectName}"
+
+    replacements:
+      amd64: "64-bit"
+      386: "32-bit"
+      darwin: "macOS"
+      linux: "linux"
+
+    homepage: "${HomePage}"
+    maintainer: "${Author} <${AuthorEmail}>"
+    description: "A template for golang"
+
+    license: "MIT"
+
+    # Formats to be generated.
+    formats:
+      - "deb"
+      - "rpm"
+
+    # Package epoch.
+    # Defaults to empty.
+    epoch: 1

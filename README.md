@@ -1,9 +1,14 @@
-# goremovelines [![Travis](https://img.shields.io/travis/Eun/goremovelines.svg)](https://travis-ci.org/Eun/goremovelines) [![Codecov](https://img.shields.io/codecov/c/github/Eun/goremovelines.svg)](https://codecov.io/gh/Eun/goremovelines) [![GoDoc](https://godoc.org/github.com/Eun/goremovelines?status.svg)](https://godoc.org/github.com/Eun/goremovelines) [![go-report](https://goreportcard.com/badge/github.com/Eun/goremovelines)](https://goreportcard.com/report/github.com/Eun/goremovelines)
+# goremovelines
+[![Actions Status](https://github.com/Eun/goremovelines/workflows/push/badge.svg)](https://github.com/Eun/goremovelines/actions)
+[![Coverage Status](https://coveralls.io/repos/github/Eun/goremovelines/badge.svg?branch=master)](https://coveralls.io/github/Eun/goremovelines?branch=master)
+[![PkgGoDev](https://img.shields.io/badge/pkg.go.dev-reference-blue)](https://pkg.go.dev/github.com/Eun/goremovelines)
+[![go-report](https://goreportcard.com/badge/github.com/Eun/goremovelines)](https://goreportcard.com/report/github.com/Eun/goremovelines)
+---
 Remove leading / trailing blank lines in Go functions, structs, if, switches, blocks.
 
 ## Installation
 ```
-go get -u github.com/Eun/goremovelines/cmd/goremovelines
+go install github.com/Eun/goremovelines/cmd/goremovelines@latest
 ```
 
 ## Usage
@@ -55,3 +60,5 @@ func main() {
 }
 ```
 
+## Build History
+[![Build history](https://buildstats.info/github/chart/Eun/goremovelines?branch=master)](https://github.com/Eun/goremovelines/actions)

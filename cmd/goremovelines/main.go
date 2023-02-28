@@ -10,48 +10,76 @@ import (
 	"strings"
 
 	"github.com/Eun/goremovelines"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin/v2"
 )
 
+// this info gets filled by goreleaser
 
-// from goreleaser
 var version string
 var commit string
 var date string
 
 var (
-	removeLineFlag    = kingpin.CommandLine.Flag("remove", "Remove blank lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)").Short('r').PlaceHolder("func|struct|if|switch|case|for|interface|block").Default("func", "struct", "if", "switch", "case", "for", "interface", "block").Strings()
-	writeToSourceFlag = kingpin.CommandLine.Flag("toSource", "Write result to (source) file instead of stdout").Short('w').Default("false").Bool()
-	skipFlag          = kingpin.CommandLine.Flag("skip", "Skip directories with this name when expanding '...'.").Short('s').PlaceHolder("DIR...").Strings()
-	vendorFlag        = kingpin.CommandLine.Flag("vendor", "Enable vendoring support (skips 'vendor' directories and sets GO15VENDOREXPERIMENT=1).").Bool()
-	debugFlag         = kingpin.CommandLine.Flag("debug", "Display debug messages.").Short('d').Bool()
+	removeLineFlag = kingpin.CommandLine.Flag(
+		"remove",
+		"Remove blank lines for the context (specify it multiple times, e.g.: --remove=func --remove=struct)",
+	).
+		Short('r').
+		PlaceHolder("func|struct|if|switch|case|for|interface|block").
+		Default("func", "struct", "if", "switch", "case", "for", "interface", "block").
+		Strings()
+	writeToSourceFlag = kingpin.CommandLine.Flag(
+		"toSource",
+		"Write result to (source) file instead of stdout",
+	).
+		Short('w').
+		Default("false").
+		Bool()
+	skipFlag = kingpin.CommandLine.Flag(
+		"skip",
+		"Skip directories with this name when expanding '...'.",
+	).
+		Short('s').
+		PlaceHolder("DIR...").
+		Strings()
+	vendorFlag = kingpin.CommandLine.Flag(
+		"vendor",
+		"Enable vendoring support (skips 'vendor' directories and sets GO15VENDOREXPERIMENT=1).",
+	).
+		Bool()
+	debugFlag = kingpin.CommandLine.Flag(
+		"debug",
+		"Display debug messages.",
+	).
+		Short('d').
+		Bool()
 )
 
 func printMode(mode goremovelines.Mode) {
 	if debugFlag == nil || !*debugFlag {
 		return
 	}
-	debug("Mode is %d", mode)
+	debugf("Mode is %d", mode)
 	if mode&goremovelines.FuncMode == goremovelines.FuncMode {
-		debug("> Cleaning for Funcs")
+		debugf("> Cleaning for Funcs")
 	}
 	if mode&goremovelines.StructMode == goremovelines.StructMode {
-		debug("> Cleaning for Structs")
+		debugf("> Cleaning for Structs")
 	}
 	if mode&goremovelines.IfMode == goremovelines.IfMode {
-		debug("> Cleaning for Ifs")
+		debugf("> Cleaning for Ifs")
 	}
 	if mode&goremovelines.SwitchMode == goremovelines.SwitchMode {
-		debug("> Cleaning for Switches")
+		debugf("> Cleaning for Switches")
 	}
 	if mode&goremovelines.CaseMode == goremovelines.CaseMode {
-		debug("> Cleaning for Cases")
+		debugf("> Cleaning for Cases")
 	}
 	if mode&goremovelines.ForMode == goremovelines.ForMode {
-		debug("> Cleaning for For Loops")
+		debugf("> Cleaning for For Loops")
 	}
 	if mode&goremovelines.InterfaceMode == goremovelines.InterfaceMode {
-		debug("> Cleaning for Interfaces")
+		debugf("> Cleaning for Interfaces")
 	}
 }
 
@@ -59,21 +87,21 @@ func parseMode() (mode goremovelines.Mode) {
 	for _, flag := range *removeLineFlag {
 		switch strings.ToLower(flag) {
 		case "func":
-			mode = mode | goremovelines.FuncMode
+			mode |= goremovelines.FuncMode
 		case "struct":
-			mode = mode | goremovelines.StructMode
+			mode |= goremovelines.StructMode
 		case "if":
-			mode = mode | goremovelines.IfMode
+			mode |= goremovelines.IfMode
 		case "switch":
-			mode = mode | goremovelines.SwitchMode
+			mode |= goremovelines.SwitchMode
 		case "case":
-			mode = mode | goremovelines.CaseMode
+			mode |= goremovelines.CaseMode
 		case "for":
-			mode = mode | goremovelines.ForMode
+			mode |= goremovelines.ForMode
 		case "interface":
-			mode = mode | goremovelines.InterfaceMode
+			mode |= goremovelines.InterfaceMode
 		case "block":
-			mode = mode | goremovelines.BlockMode
+			mode |= goremovelines.BlockMode
 		}
 	}
 
@@ -93,17 +121,17 @@ func cleanPaths(paths []string, mode goremovelines.Mode) error {
 			f, err := os.Create(paths[i])
 			if err == nil {
 				if _, err = f.Write(out.Bytes()); err != nil {
-					return fmt.Errorf("Unable to write file `%s': %v", paths[i], err)
+					return fmt.Errorf("unable to write file `%s': %w", paths[i], err)
 				}
 				if err = f.Close(); err != nil {
-					return fmt.Errorf("Unable to close file `%s': %v", paths[i], err)
+					return fmt.Errorf("unable to close file `%s': %w", paths[i], err)
 				}
 			} else {
-				return fmt.Errorf("Unable to create file `%s': %v", paths[i], err)
+				return fmt.Errorf("unable to create file `%s': %w", paths[i], err)
 			}
 		} else {
 			if _, err := io.Copy(os.Stdout, out); err != nil {
-				return fmt.Errorf("Unable to write to stdout (`%s'): %v", paths[i], err)
+				return fmt.Errorf("unable to write to stdout (`%s'): %w", paths[i], err)
 			}
 		}
 	}
@@ -114,7 +142,7 @@ func cleanPathsFromStdin(mode goremovelines.Mode) error {
 	in := &bytes.Buffer{}
 	_, err := io.Copy(in, os.Stdin)
 	if err != nil {
-		return fmt.Errorf("Unable to copy stdin: %v", err)
+		return fmt.Errorf("unable to copy stdin: %w", err)
 	}
 
 	out := &bytes.Buffer{}
@@ -123,10 +151,10 @@ func cleanPathsFromStdin(mode goremovelines.Mode) error {
 		return err
 	}
 	if writeToSourceFlag != nil && *writeToSourceFlag {
-		return errors.New("Could not write to source if reading from stdin")
+		return errors.New("could not write to source if reading from stdin")
 	}
 	if _, err := io.Copy(os.Stdout, out); err != nil {
-		return fmt.Errorf("Unable to copy to stdout: %v", err)
+		return fmt.Errorf("unable to copy to stdout: %w", err)
 	}
 	return nil
 }
@@ -143,15 +171,15 @@ func main() {
 	if removeLineFlag == nil {
 		log.Panic("parameter remove is nil")
 	}
-	if len(*removeLineFlag) <= 0 {
+	if len(*removeLineFlag) == 0 {
 		return
 	}
 
 	mode := parseMode()
 
-	if pathsArg == nil || len(*pathsArg) <= 0 {
+	if pathsArg == nil || len(*pathsArg) == 0 {
 		if err := cleanPathsFromStdin(mode); err != nil {
-			warning("Unable to clean: %v", err.Error())
+			warningf("Unable to clean: %v", err.Error())
 			os.Exit(1)
 		}
 		return
@@ -163,7 +191,7 @@ func main() {
 
 	if os.Getenv("GO15VENDOREXPERIMENT") == "1" || (vendorFlag != nil && *vendorFlag) {
 		if err := os.Setenv("GO15VENDOREXPERIMENT", "1"); err != nil {
-			warning("setenv GO15VENDOREXPERIMENT: %s", err)
+			warningf("setenv GO15VENDOREXPERIMENT: %s", err)
 		}
 		*skipFlag = append(*skipFlag, "vendor")
 		trueValue := true
@@ -171,7 +199,7 @@ func main() {
 	}
 
 	if err := cleanPaths(resolvePaths(*pathsArg, *skipFlag), mode); err != nil {
-		warning("Unable to clean: %v", err.Error())
+		warningf("Unable to clean: %v", err.Error())
 		os.Exit(1)
 	}
 }
