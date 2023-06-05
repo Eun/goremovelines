@@ -30,7 +30,7 @@ jobs:
         run: envsubst < .golangci.yml > .golangci.yml
       -
         name: Lint
-        uses: golangci/golangci-lint-action@v3.4.0
+        uses: golangci/golangci-lint-action@v3.5.0
         with:
           version: v1.51.2
           # optional: show only new issues if it's a pull request. The default value is `false`.
